@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>모두의 사회서비스</title>
+<meta name="description" content="내 주변 사회서비스를 한눈에 — 생애주기별 통합 검색">
+<meta property="og:title" content="모두의 사회서비스">
+<meta property="og:description" content="생애주기별 내 주변 사회서비스 통합 검색">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/dist/tabler-icons.min.css">
+<style>
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#1A6B3C;--g2:#0F4A28;--gl:#E8F5EE;
+  --t:#111;--t2:#555;--t3:#999;
+  --bd:rgba(0,0,0,0.09);--bd2:rgba(0,0,0,0.16);
+  --bg:#F5F7F5;--card:#fff;
+  --r:14px;
+}
+@media(prefers-color-scheme:dark){
+  :root{--t:#e8f0e8;--t2:#8fa88f;--t3:#567056;--bd:rgba(255,255,255,0.1);--bd2:rgba(255,255,255,0.2);--bg:#111811;--card:#182018}
+}
+html{font-family:-apple-system,'Malgun Gothic','맑은 고딕',sans-serif;color:var(--t);background:var(--bg)}
+body{min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none}
+input{font-family:inherit;border:none;outline:none}
+/* LANDING */
+#landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px 20px;transition:opacity .25s,transform .25s}
+#landing.gone{opacity:0;transform:translateY(-24px);pointer-events:none;position:absolute;top:0;width:100%}
+.logo-mark{width:60px;height:60px;background:var(--g);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.logo-mark i{font-size:32px;color:#fff}
+.logo-title{font-size:30px;font-weight:700;color:var(--g);letter-spacing:-1px;text-align:center}
+.logo-sub{font-size:13px;color:var(--t3);margin-top:5px;text-align:center}
+.sbox{width:100%;max-width:540px;margin-top:28px;background:var(--card);border:1.5px solid var(--bd2);border-radius:32px;display:flex;align-items:center;padding:4px 6px 4px 18px;box-shadow:0 2px 14px rgba(0,0,0,0.07);transition:border-color .15s,box-shadow .15s}
+.sbox:focus-within{border-color:var(--g);box-shadow:0 2px 18px rgba(26,107,60,0.14)}
+.sbox input{flex:1;font-size:15px;background:transparent;color:var(--t);padding:10px 0}
+.sbox input::placeholder{color:var(--t3)}
+.sbox button{background:var(--g);border-radius:24px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0;transition:background .15s}
+.sbox button:hover{background:var(--g2)}
+.gps-btn{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:8px 18px;border-radius:24px;border:1px solid var(--bd2);background:var(--card);font-size:13px;color:var(--t2);cursor:pointer;transition:all .15s}
+.gps-btn:hover{border-color:var(--g);color:var(--g)}
+.gps-btn.busy{opacity:.7;pointer-events:none}
+.gps-btn i{font-size:15px;color:var(--g)}
+.lc-section{width:100%;max-width:540px;margin-top:26px}
+.lc-label{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.lc-label::after{content:"";flex:1;height:1px;background:var(--bd)}
+.lc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:440px){.lc-grid{grid-template-columns:repeat(3,1fr)}}
+.lc-btn{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s}
+.lc-btn:hover{border-color:var(--g);background:var(--gl)}
+.lc-btn i{font-size:22px;display:block;margin-bottom:5px}
+.lc-btn b{font-size:12px;font-weight:600;color:var(--t2);display:block}
+.lc-btn small{font-size:10px;color:var(--t3);display:block;margin-top:1px}
+/* TOP BAR */
+#results{display:none}
+#results.show{display:block}
+.topbar{position:sticky;top:0;z-index:200;background:var(--card);border-bottom:1px solid var(--bd);padding:9px 12px;display:flex;align-items:center;gap:10px}
+.tlogo{font-size:15px;font-weight:700;color:var(--g);cursor:pointer;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:4px}
+.tlogo i{font-size:17px}
+.tbox{flex:1;background:var(--bg);border:1.5px solid var(--bd);border-radius:22px;display:flex;align-items:center;padding:0 10px;gap:7px;transition:border-color .15s}
+.tbox:focus-within{border-color:var(--g)}
+.tbox i{font-size:14px;color:var(--t3);flex-shrink:0}
+.tbox input{flex:1;font-size:13px;background:transparent;color:var(--t);padding:8px 0}
+.tbox input::placeholder{color:var(--t3)}
+.tbox button{background:none;padding:3px;color:var(--t3);font-size:14px;display:flex;align-items:center}
+.share-btn{background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--t2);display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.share-btn:hover{border-color:var(--g);color:var(--g)}
+.share-btn i{font-size:13px}
+/* FILTER BAR */
+.fbar{background:var(--card);border-bottom:1px solid var(--bd);padding:8px 12px;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;align-items:center}
+.fbar::-webkit-scrollbar{display:none}
+.fc{flex-shrink:0;padding:5px 11px;border-radius:20px;border:1px solid var(--bd);background:var(--card);font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.fc i{font-size:11px}
+.fc.on{background:var(--g);border-color:var(--g);color:#fff;font-weight:600}
+.fsep{width:1px;height:18px;background:var(--bd);flex-shrink:0;margin:0 2px}
+.fs{flex-shrink:0;padding:5px 10px;border-radius:20px;border:1px solid var(--bd);background:var(--card);font-size:12px;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:3px;transition:all .15s;white-space:nowrap}
+.fs.on{border-color:var(--g);color:var(--g);font-weight:600}
+.fs i{font-size:11px}
+/* LOC BAR */
+.loc-bar{background:var(--gl);border-bottom:1px solid rgba(26,107,60,0.15);padding:7px 14px;font-size:12px;color:#1A6B3C;display:flex;align-items:center;gap:6px}
+.loc-bar i{font-size:13px}
+.loc-bar.err{background:#FEF2F2;border-color:rgba(220,38,38,0.15);color:#DC2626}
+.loc-bar.busy{background:#F0F9FF;border-color:rgba(37,99,235,0.15);color:#2563EB}
+/* MAIN */
+.main{display:grid;grid-template-columns:1fr 310px;max-width:1040px;margin:0 auto;padding:14px;gap:14px}
+@media(max-width:720px){.main{grid-template-columns:1fr}.map-col{display:none}}
+.meta{font-size:12px;color:var(--t3);margin-bottom:12px;padding:0 2px}
+.meta b{color:var(--g);font-weight:600}
+.lst{display:flex;flex-direction:column;gap:8px}
+/* CARD */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:border-color .15s}
+.card:hover{border-color:rgba(26,107,60,.4)}
+.card.open{border-color:var(--g)}
+.card-top{display:flex;align-items:center;gap:12px;padding:13px 14px}
+.rnum{width:30px;height:30px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.cinfo{flex:1;min-width:0}
+.cname{font-size:14px;font-weight:600;color:var(--t);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cname .near{font-size:10px;font-weight:700;color:#059669;background:#D1FAE5;padding:1px 5px;border-radius:4px;margin-right:5px;vertical-align:1px}
+.ctype{font-size:12px;color:var(--t3);display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+.sbar-wrap{display:flex;align-items:center;gap:6px;margin-top:5px}
+.sbar{flex:1;height:3px;background:var(--bd);border-radius:3px;overflow:hidden}
+.sbar-f{height:100%;border-radius:3px}
+.cright{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px}
+.dist{font-size:14px;font-weight:700;color:var(--g)}
+.dist.far{font-weight:400;color:var(--t3)}
+.gb{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px}
+.gS{background:#D1FAE5;color:#065F46}.gA{background:#DBEAFE;color:#1E40AF}
+.gB{background:#FEF9C3;color:#92400E}.gC{background:#FEE2E2;color:#991B1B}
+.gX{background:var(--bg);color:var(--t3)}
+@media(prefers-color-scheme:dark){
+  .gS{background:#064E3B;color:#6EE7B7}.gA{background:#1E3A5F;color:#93C5FD}
+  .gB{background:#451A03;color:#FDE68A}.gC{background:#450A0A;color:#FCA5A5}
+  .gX{background:#222;color:#666}
+}
+.chv{font-size:14px;color:var(--t3);transition:transform .2s;flex-shrink:0}
+.chv.up{transform:rotate(180deg)}
+/* DETAIL */
+.detail{border-top:1px solid var(--bd);padding:14px}
+.dgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:12px}
+.di{background:var(--bg);border-radius:9px;padding:9px 11px}
+.dl{font-size:10px;color:var(--t3);margin-bottom:3px;display:flex;align-items:center;gap:3px}
+.dl i{font-size:10px}
+.dv{font-size:12px;font-weight:500;color:var(--t);line-height:1.4}
+.stags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.stag{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--gl);color:var(--g);font-weight:500}
+@media(prefers-color-scheme:dark){.stag{background:#0a2a1a;color:#6EE7B7}}
+.ebox{background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.ettl{font-size:10px;color:var(--t3);font-weight:700;margin-bottom:8px}
+.erow{display:flex;justify-content:space-between;align-items:flex-end}
+.escr{display:flex;align-items:center;gap:7px;margin-top:5px}
+.ebar{width:110px;height:5px;background:var(--bd);border-radius:3px;overflow:hidden}
+.efill{height:100%;border-radius:3px}
+.eg{font-size:26px;font-weight:800;line-height:1}
+.cta{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.btn-o{padding:10px;border-radius:10px;border:1.5px solid var(--g);color:var(--g);font-size:12px;font-weight:600;background:none;display:flex;align-items:center;justify-content:center;gap:4px;text-decoration:none;transition:background .15s}
+.btn-o:hover{background:var(--gl)}
+.btn-f{padding:10px;border-radius:10px;border:none;background:var(--g);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:4px;transition:background .15s}
+.btn-f:hover{background:var(--g2)}
+/* MAP */
+.map-col{position:sticky;top:106px;height:calc(100vh - 126px);max-height:560px}
+.map-wrap{width:100%;height:100%;border-radius:var(--r);border:1px solid var(--bd);overflow:hidden}
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--t3)}
+.empty i{font-size:42px;display:block;margin-bottom:12px}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#111;color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;font-weight:500;transition:transform .3s;z-index:999;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast i{color:#6EE7B7;font-size:14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1s linear infinite;display:inline-block}
+
+</style>
+</head>
+<body>
+
+<div id="landing">
+  <div class="logo-mark"><i class="ti ti-heart-handshake" aria-hidden="true"></i></div>
+  <h1 class="logo-title">모두의 사회서비스</h1>
+  <p class="logo-sub">내 주변 사회서비스를 한눈에 — 생애주기별 통합 검색</p>
+
+  <div class="sbox">
+    <input id="landInput" placeholder="지역명, 기관명, 서비스 입력..." autocomplete="off" spellcheck="false">
+    <button id="landBtn" aria-label="검색"><i class="ti ti-search" aria-hidden="true"></i></button>
+  </div>
+
+  <button class="gps-btn" id="gpsBtn">
+    <i class="ti ti-current-location" aria-hidden="true"></i>
+    <span id="gpsLabel">내 위치로 바로 검색</span>
+  </button>
+
+  <div class="lc-section">
+    <div class="lc-label">생애주기별</div>
+    <div class="lc-grid" id="lcGrid"></div>
+  </div>
+  <div class="lc-section" style="margin-top:16px">
+    <div class="lc-label">전 생애주기</div>
+    <div class="lc-grid" id="aaGrid"></div>
+  </div>
+</div>
+
+<div id="results">
+  <div class="topbar">
+    <div class="tlogo" id="backBtn"><i class="ti ti-heart-handshake" aria-hidden="true"></i>모두의 사회서비스</div>
+    <div class="tbox">
+      <i class="ti ti-search" aria-hidden="true"></i>
+      <input id="topInput" placeholder="기관명, 지역, 서비스 검색..." autocomplete="off" spellcheck="false">
+      <button id="topBtn"><i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+    </div>
+    <button class="share-btn" id="shareBtn"><i class="ti ti-share"></i>공유</button>
+  </div>
+  <div class="fbar" id="fbar"></div>
+  <div id="locBar" style="display:none"></div>
+  <div class="main">
+    <div>
+      <p class="meta" id="meta"></p>
+      <div class="lst" id="lst"></div>
+    </div>
+    <div class="map-col">
+      <div class="map-wrap" id="mapWrap"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-check" aria-hidden="true"></i>링크가 복사됐어요</div>
+
+<script>
+
+const LC=[
+  {id:"infant",  label:"영유아", sub:"0~6세",   icon:"ti-baby-bottle",    c:"#0E7490"},
+  {id:"child",   label:"아동",   sub:"7~12세",  icon:"ti-playground",     c:"#7C3AED"},
+  {id:"youth",   label:"청소년", sub:"13~18세", icon:"ti-school",         c:"#1D4ED8"},
+  {id:"young",   label:"청년",   sub:"19~34세", icon:"ti-run",            c:"#059669"},
+  {id:"middle",  label:"중장년", sub:"35~64세", icon:"ti-briefcase",      c:"#B45309"},
+  {id:"elder",   label:"노인",   sub:"65세+",   icon:"ti-heart-handshake",c:"#DC2626"},
+  {id:"disability",label:"장애인",sub:"전 연령", icon:"ti-wheelchair",     c:"#6B21A8"},
+  {id:"family",  label:"여성·가족",sub:"임신·출산",icon:"ti-users",       c:"#BE185D"},
+];
+const AA=[
+  {id:"mental",  label:"정신건강",sub:"상담·치료",icon:"ti-brain",        c:"#6D28D9"},
+  {id:"care",    label:"돌봄",    sub:"재가·방문",icon:"ti-home-heart",   c:"#0369A1"},
+  {id:"crisis",  label:"위기지원",sub:"긴급·자립",icon:"ti-lifebuoy",    c:"#B91C1C"},
+];
+
+const DATA=[
+  {id:1,name:"푸른어린이집",cats:["infant"],type:"국공립어린이집",
+   addr:"경기도 양주시 덕계로 12",phone:"031-841-2200",hours:"07:30~19:30",
+   svcs:["영아보육","유아보육","방과후보육"],lat:37.7830,lng:127.0440,
+   eval:{year:2025,grade:"S",score:96,src:"보건복지부 사회서비스 품질평가"}},
+  {id:2,name:"해맑은 아이돌봄센터",cats:["infant","child"],type:"아이돌봄서비스",
+   addr:"경기도 양주시 남방로 22",phone:"031-841-5500",hours:"평일 07:00~20:00",
+   svcs:["아이돌봄","영아종일돌봄","시간제돌봄","긴급돌봄"],lat:37.7820,lng:127.0380,
+   eval:{year:2025,grade:"S",score:95,src:"보건복지부 사회서비스 품질평가"}},
+  {id:3,name:"양주시육아종합지원센터",cats:["infant"],type:"육아종합지원센터",
+   addr:"경기도 양주시 부흥로 99",phone:"031-840-4900",hours:"평일 09:00~18:00",
+   svcs:["보육상담","부모교육","장난감대여","문화프로그램"],lat:37.7830,lng:127.0510,eval:null},
+  {id:4,name:"양주지역아동센터",cats:["child"],type:"지역아동센터",
+   addr:"경기도 양주시 회암로 33",phone:"031-840-4400",hours:"평일 14:00~20:00",
+   svcs:["방과후돌봄","학습지원","급식지원","문화활동"],lat:37.7920,lng:127.0420,eval:null},
+  {id:5,name:"드림스타트 양주센터",cats:["child"],type:"드림스타트",
+   addr:"경기도 양주시 고읍로 88",phone:"031-840-5300",hours:"평일 09:00~18:00",
+   svcs:["통합사례관리","의료지원","학습지원","정서발달"],lat:37.7950,lng:127.0415,eval:null},
+  {id:6,name:"양주청소년수련관",cats:["youth"],type:"청소년수련관",
+   addr:"경기도 양주시 고읍로 45",phone:"031-840-9000",hours:"평일·토 09:00~21:00",
+   svcs:["방과후활동","진로상담","체험활동","동아리"],lat:37.7950,lng:127.0420,eval:null},
+  {id:7,name:"양주청소년상담복지센터",cats:["youth","mental"],type:"청소년상담기관",
+   addr:"경기도 양주시 고읍로 120",phone:"031-840-9100",hours:"평일 09:00~18:00",
+   svcs:["개인상담","집단상담","위기개입","찾아가는상담"],lat:37.7960,lng:127.0430,eval:null},
+  {id:8,name:"청년마음건강센터",cats:["young","mental"],type:"청년정신건강기관",
+   addr:"경기도 양주시 고덕로 18",phone:"031-843-0070",hours:"평일 10:00~20:00",
+   svcs:["심리상담","우울·불안검사","집단치료"],lat:37.7780,lng:127.0520,
+   eval:{year:2025,grade:"A",score:84,src:"보건복지부 사회서비스 품질평가"}},
+  {id:9,name:"양주시니어복지관",cats:["elder"],type:"노인복지관",
+   addr:"경기도 양주시 고읍남로 101",phone:"031-843-2080",hours:"평일 09:00~18:00",
+   svcs:["여가·문화","건강증진","사회참여","정보제공"],lat:37.7853,lng:127.0456,
+   eval:{year:2024,grade:"A",score:88,src:"보건복지부 사회복지시설 평가"}},
+  {id:10,name:"양주장기요양센터",cats:["elder","care"],type:"장기요양기관",
+   addr:"경기도 양주시 회정로 55",phone:"031-844-1234",hours:"24시간 운영",
+   svcs:["방문요양","방문간호","주야간보호"],lat:37.7891,lng:127.0512,
+   eval:{year:2025,grade:"B",score:78,src:"보건복지부 사회서비스 품질평가"}},
+  {id:11,name:"은빛요양원",cats:["elder"],type:"노인요양시설",
+   addr:"경기도 양주시 은봉로 33",phone:"031-845-6677",hours:"24시간 운영",
+   svcs:["시설요양","치매케어","재활프로그램"],lat:37.8050,lng:127.0600,
+   eval:{year:2022,grade:"C",score:68,src:"보건복지부 사회복지시설 평가"}},
+  {id:12,name:"해오름 방문요양센터",cats:["elder","care"],type:"재가노인복지시설",
+   addr:"경기도 양주시 덕정로 22",phone:"031-843-0055",hours:"평일 08:00~20:00",
+   svcs:["방문요양","가사지원","정서지원"],lat:37.7910,lng:127.0440,eval:null},
+  {id:13,name:"양주가사간병방문센터",cats:["elder","care","middle"],type:"가사·간병방문지원",
+   addr:"경기도 양주시 덕계로 55",phone:"031-841-8800",hours:"평일 08:00~18:00",
+   svcs:["가사지원","간병지원","동행서비스"],lat:37.7880,lng:127.0490,
+   eval:{year:2025,grade:"A",score:82,src:"보건복지부 사회서비스 품질평가"}},
+  {id:14,name:"양주장애인복지관",cats:["disability"],type:"장애인복지관",
+   addr:"경기도 양주시 광적면 101",phone:"031-852-0001",hours:"평일 09:00~18:00",
+   svcs:["재활서비스","직업재활","생활지원","사회참여"],lat:37.8010,lng:127.0300,
+   eval:{year:2023,grade:"A",score:85,src:"보건복지부 사회복지시설 평가"}},
+  {id:15,name:"양주발달재활센터",cats:["disability","infant","child"],type:"발달재활서비스",
+   addr:"경기도 양주시 회암로 55",phone:"031-840-5500",hours:"평일 09:00~19:00",
+   svcs:["언어재활","인지재활","놀이치료","감각통합"],lat:37.7900,lng:127.0350,
+   eval:{year:2024,grade:"A",score:87,src:"보건복지부 사회서비스 품질평가"}},
+  {id:16,name:"양주장애인공동생활가정",cats:["disability"],type:"장애인공동생활가정",
+   addr:"경기도 양주시 부흥로 44",phone:"031-840-6600",hours:"24시간 운영",
+   svcs:["거주지원","일상생활지원","지역사회참여"],lat:37.7950,lng:127.0500,
+   eval:{year:2023,grade:"B",score:76,src:"보건복지부 사회복지시설 평가"}},
+  {id:17,name:"양주산모신생아건강관리원",cats:["family","infant"],type:"산모·신생아건강관리",
+   addr:"경기도 양주시 고읍남로 67",phone:"031-843-7700",hours:"24시간 파견",
+   svcs:["산후관리","신생아케어","모유수유지원"],lat:37.7840,lng:127.0470,
+   eval:{year:2025,grade:"A",score:87,src:"보건복지부 사회서비스 품질평가"}},
+  {id:18,name:"늘봄여성가족센터",cats:["family"],type:"여성가족지원기관",
+   addr:"경기도 양주시 양주로 99",phone:"031-843-8800",hours:"평일 09:00~18:00",
+   svcs:["가족상담","한부모지원","다문화가족"],lat:37.7760,lng:127.0400,
+   eval:{year:2022,grade:"B",score:75,src:"보건복지부 사회복지시설 평가"}},
+  {id:19,name:"양주정신건강복지센터",cats:["mental"],type:"정신건강복지센터",
+   addr:"경기도 양주시 부흥로 130",phone:"031-840-3280",hours:"평일 09:00~18:00",
+   svcs:["정신건강상담","위기개입","사례관리","자살예방"],lat:37.7810,lng:127.0550,
+   eval:{year:2023,grade:"A",score:84,src:"보건복지부 사회복지시설 평가"}},
+  {id:20,name:"양주재가복지서비스센터",cats:["care","elder","disability"],type:"재가복지서비스",
+   addr:"경기도 양주시 신암로 44",phone:"031-840-7800",hours:"평일 09:00~18:00",
+   svcs:["재가복지","가사지원","급식서비스","이동지원"],lat:37.7870,lng:127.0475,eval:null},
+  {id:21,name:"양주자살예방센터",cats:["crisis","mental"],type:"자살예방상담기관",
+   addr:"경기도 양주시 덕계로 77",phone:"031-843-1170",hours:"24시간 운영",
+   svcs:["위기상담","사후관리","유족지원","생명사랑교육"],lat:37.7840,lng:127.0460,eval:null},
+  {id:22,name:"양주노숙인종합지원센터",cats:["crisis"],type:"노숙인지원시설",
+   addr:"경기도 양주시 부흥로 88",phone:"031-840-5000",hours:"24시간",
+   svcs:["급식지원","주거지원","취업지원","의료연계"],lat:37.7990,lng:127.0550,
+   eval:{year:2023,grade:"B",score:73,src:"보건복지부 사회복지시설 평가"}},
+];
+
+const GC={S:"#059669",A:"#2563EB",B:"#D97706",C:"#DC2626"};
+const GO={S:0,A:1,B:2,C:3,D:4};
+
+let selCat="all",selSort="dist",openId=null,searchQ="";
+let uLat=null,uLng=null,locSt="none";
+
+function hav(a,b,c,d){
+  const R=6371,dA=(c-a)*Math.PI/180,dB=(d-b)*Math.PI/180;
+  const x=Math.sin(dA/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dB/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+function dist(it){
+  return uLat?hav(uLat,uLng,it.lat,it.lng):hav(37.787,127.048,it.lat,it.lng);
+}
+function fmt(d){return d<1?Math.round(d*1000)+"m":d.toFixed(1)+"km"}
+
+function filtered(){
+  const q=searchQ.toLowerCase();
+  return DATA.filter(d=>{
+    if(selCat!=="all"&&!d.cats.includes(selCat))return false;
+    if(q&&![d.name,d.type,d.addr,...d.svcs].some(x=>x.toLowerCase().includes(q)))return false;
+    return true;
+  }).sort((a,b)=>{
+    if(selSort==="dist")return dist(a)-dist(b);
+    if(selSort==="grade")return(GO[a.eval?.grade]??9)-(GO[b.eval?.grade]??9);
+    if(selSort==="score")return(b.eval?.score||0)-(a.eval?.score||0);
+    return dist(a)-dist(b);
+  });
+}
+
+function gbadge(ev){
+  if(!ev)return`<span class="gb gX">평가없음</span>`;
+  return`<span class="gb g${ev.grade}">${ev.grade}등급</span>`;
+}
+
+function buildMap(items){
+  const W=310,H=340;
+  const bLat=uLat||37.787,bLng=uLng||127.048,sp=0.025;
+  const mla=bLat-sp,xla=bLat+sp,mln=bLng-sp*1.2,xln=bLng+sp*1.2;
+  const xy=(la,ln)=>({
+    x:Math.round(((ln-mln)/(xln-mln))*(W-26)+13),
+    y:Math.round(H-((la-mla)/(xla-mla))*(H-26)-13)
+  });
+  const my=xy(bLat,bLng);
+  const grid=[0.2,0.4,0.6,0.8].map(r=>{
+    const y=xy(mla+(xla-mla)*r,mln).y;
+    const x=xy(mla,mln+(xln-mln)*r).x;
+    return`<line x1="7" y1="${y}" x2="${W-7}" y2="${y}" stroke="#C8E4C8" stroke-width=".7"/>
+    <line x1="${x}" y1="7" x2="${x}" y2="${H-7}" stroke="#C8E4C8" stroke-width=".7"/>`;
+  }).join("");
+  const pins=items.map((it)=>{
+    const p=xy(it.lat,it.lng);
+    const g=it.eval?.grade,c=GC[g]||"#9CA3AF",iS=it.id===openId;
+    const nm=it.name.length>6?it.name.slice(0,6)+"…":it.name;
+    return`<g onclick="pinClick(${it.id})" style="cursor:pointer">
+      ${iS?`<circle cx="${p.x}" cy="${p.y}" r="16" fill="${c}" opacity=".15"/>`:""}
+      <circle cx="${p.x}" cy="${p.y}" r="${iS?11:7}" fill="${c}" stroke="white" stroke-width="${iS?2:1.5}"/>
+      <text x="${p.x}" y="${p.y+3.5}" text-anchor="middle" font-size="${iS?8:7}" fill="white" font-weight="700" font-family="sans-serif">${g||"?"}</text>
+      ${iS?`<rect x="${p.x-29}" y="${p.y-27}" width="58" height="14" rx="3" fill="rgba(10,10,10,.8)"/>
+      <text x="${p.x}" y="${p.y-17}" text-anchor="middle" font-size="8" fill="white" font-family="sans-serif">${nm}</text>`:""}
+    </g>`;
+  }).join("");
+  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%">
+    <rect width="${W}" height="${H}" fill="#EDF5ED"/>
+    ${grid}${pins}
+    <circle cx="${my.x}" cy="${my.y}" r="15" fill="#2563EB" opacity=".12"/>
+    <circle cx="${my.x}" cy="${my.y}" r="8" fill="#2563EB" stroke="white" stroke-width="2.5"/>
+    <circle cx="${my.x}" cy="${my.y}" r="3" fill="white"/>
+    <text x="${my.x+11}" y="${my.y+4}" font-size="8" fill="#2563EB" font-family="sans-serif" font-weight="700">내 위치</text>
+    <rect x="5" y="${H-17}" width="157" height="12" rx="3" fill="rgba(255,255,255,.9)"/>
+    <text x="9" y="${H-8}" font-size="7.5" fill="#4A7A52" font-family="sans-serif">S초록·A파랑·B주황·C빨강·없음회색</text>
+  </svg>`;
+}
+window.pinClick=function(id){
+  openId=openId===id?null:id;writeURL();render();
+  if(openId)setTimeout(()=>{const el=document.querySelector(`[data-cid="${id}"]`);if(el)el.scrollIntoView({behavior:"smooth",block:"nearest"});},60);
+};
+
+function cardHTML(it,rank){
+  const isO=it.id===openId,d=dist(it),isN=rank===0&&selSort==="dist";
+  const g=it.eval?.grade,s=it.eval?.score||0,c=GC[g]||"#ccc";
+  const rnk=rank===0?"background:#D1FAE5;color:#065F46":rank===1?"background:#DBEAFE;color:#1E40AF":rank===2?"background:#FEF9C3;color:#92400E":"background:var(--bg);color:var(--t3)";
+  const det=isO?`<div class="detail">
+    <div class="dgrid">
+      <div class="di"><div class="dl"><i class="ti ti-map-pin"></i>주소</div><div class="dv" style="font-size:11px">${it.addr}</div></div>
+      <div class="di"><div class="dl"><i class="ti ti-phone"></i>전화</div><div class="dv">${it.phone}</div></div>
+      <div class="di"><div class="dl"><i class="ti ti-clock"></i>운영</div><div class="dv">${it.hours}</div></div>
+      <div class="di"><div class="dl"><i class="ti ti-tag"></i>유형</div><div class="dv">${it.type}</div></div>
+    </div>
+    <div class="stags">${it.svcs.map(sv=>`<span class="stag">${sv}</span>`).join("")}</div>
+    <div class="ebox">
+      <div class="ettl">평가 결과</div>
+      ${it.eval?`<div class="erow">
+        <div><small style="font-size:11px;color:var(--t3)">${it.eval.year}년도 · ${it.eval.src}</small>
+        <div class="escr"><div class="ebar"><div class="efill" style="width:${s}%;background:${c}"></div></div>
+        <span style="font-size:12px;font-weight:600;color:${c}">${s}점</span></div></div>
+        <div class="eg" style="color:${c}">${g}</div>
+      </div>`:`<div style="font-size:12px;color:var(--t3)">평가 이력이 없는 기관입니다.</div>`}
+    </div>
+    <div class="cta">
+      <a href="https://bokjiro.go.kr" target="_blank" class="btn-o"><i class="ti ti-external-link"></i>복지로</a>
+      <button class="btn-f" onclick="window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('${it.name.replace(/'/g,"\\'")} ${it.addr}'))"><i class="ti ti-map"></i>지도 열기</button>
+    </div>
+  </div>`:"";
+  return`<div class="card${isO?" open":""}" data-cid="${it.id}" onclick="cardClick(${it.id})">
+    <div class="card-top">
+      <div class="rnum" style="${rnk}">${rank+1}</div>
+      <div class="cinfo">
+        <div class="cname">${isN?'<span class="near">가장 가까워요</span>':""}${it.name}</div>
+        <div class="ctype">${it.type}${it.eval?`<span>·</span><span style="font-size:11px;font-weight:600;color:${c}">${g}등급 ${s}점</span><span style="font-size:10px;color:var(--t3)">${it.eval.year}년</span>`:""}</div>
+        ${it.eval?`<div class="sbar-wrap"><div class="sbar"><div class="sbar-f" style="width:${s}%;background:${c}"></div></div></div>`:""}
+      </div>
+      <div class="cright">
+        <span class="dist${d>3?" far":""}">${fmt(d)}</span>
+        ${gbadge(it.eval)}
+        <i class="ti ti-chevron-down chv${isO?" up":""}"></i>
+      </div>
+    </div>${det}
+  </div>`;
+}
+window.cardClick=function(id){openId=openId===id?null:id;writeURL();render();};
+
+function setLocBar(type,txt){
+  const el=document.getElementById("locBar");
+  el.style.display="flex";
+  const ic=type==="ok"?"ti-map-pin":type==="busy"?'ti-loader" style="animation:spin 1s linear infinite':"ti-alert-triangle";
+  el.className="loc-bar"+(type==="err"?" err":type==="busy"?" busy":"");
+  el.innerHTML=`<i class="ti ${ic}"></i>${txt}`;
+}
+
+function render(){
+  const items=filtered();
+  const locNote=uLat?`실제 내 위치(${uLat.toFixed(3)},${uLng.toFixed(3)}) 기준`:"샘플 위치 기준";
+  document.getElementById("meta").innerHTML=
+    `<b>${searchQ?`"${searchQ}" `:""}${selCat!=="all"?`[${[...LC,...AA].find(x=>x.id===selCat)?.label||selCat}] `:""}</b><b>${items.length}개</b> 기관 · ${locNote} 가까운 순`;
+  document.getElementById("lst").innerHTML=items.length
+    ?items.map((it,i)=>cardHTML(it,i)).join("")
+    :`<div class="empty"><i class="ti ti-search-off"></i><p style="font-size:14px;font-weight:500">결과가 없습니다</p><span style="font-size:12px">다른 키워드로 검색해보세요</span></div>`;
+  document.getElementById("mapWrap").innerHTML=buildMap(items);
+  document.querySelectorAll(".fc").forEach(el=>el.classList.toggle("on",el.dataset.cat===selCat));
+  document.querySelectorAll(".fs").forEach(el=>el.classList.toggle("on",el.dataset.srt===selSort));
+  document.getElementById("topInput").value=searchQ;
+}
+
+function doGPS(fromLanding){
+  const lbl=document.getElementById("gpsLabel");
+  const btn=document.getElementById("gpsBtn");
+  btn.classList.add("busy"); lbl.textContent="위치 확인 중...";
+  setLocBar("busy","현재 위치를 가져오는 중입니다...");
+  if(!navigator.geolocation){
+    btn.classList.remove("busy"); lbl.textContent="위치 서비스 미지원";
+    setLocBar("err","이 브라우저는 위치 서비스를 지원하지 않습니다.");
+    if(fromLanding)showResults();
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      uLat=pos.coords.latitude; uLng=pos.coords.longitude;
+      btn.classList.remove("busy"); lbl.textContent="위치 확인됨 ✓";
+      setLocBar("ok",`내 위치 확인됨 — 위도 ${uLat.toFixed(4)}, 경도 ${uLng.toFixed(4)} 기준으로 거리를 계산합니다`);
+      if(fromLanding)showResults();
+      else render();
+    },
+    err=>{
+      btn.classList.remove("busy"); lbl.textContent="위치 권한 필요";
+      const m=err.code===1?"위치 권한이 거부됐습니다. 브라우저 주소창 왼쪽 자물쇠 아이콘에서 위치를 허용해주세요."
+              :err.code===2?"위치를 가져올 수 없습니다."
+              :"위치 요청이 시간 초과됐습니다.";
+      setLocBar("err",m);
+      if(fromLanding)showResults();
+    },
+    {timeout:10000,enableHighAccuracy:true}
+  );
+}
+
+function showResults(){
+  document.getElementById("landing").classList.add("gone");
+  document.getElementById("results").classList.add("show");
+  writeURL(); render();
+  if(locSt==="none"){locSt="started"; doGPS(false);}
+}
+function goHome(){
+  document.getElementById("landing").classList.remove("gone");
+  document.getElementById("results").classList.remove("show");
+  document.getElementById("locBar").style.display="none";
+  history.replaceState(null,"",location.pathname);
+}
+function writeURL(){
+  const p=new URLSearchParams();
+  if(searchQ)p.set("q",searchQ);
+  if(selCat!=="all")p.set("cat",selCat);
+  if(selSort!=="dist")p.set("sort",selSort);
+  if(openId)p.set("open",openId);
+  history.replaceState(null,"","?"+p.toString());
+}
+function readURL(){
+  const p=new URLSearchParams(location.search);
+  searchQ=p.get("q")||""; selCat=p.get("cat")||"all";
+  selSort=p.get("sort")||"dist"; openId=p.get("open")?parseInt(p.get("open")):null;
+  return !!(searchQ||selCat!=="all"||openId);
+}
+
+// Build filter bar
+function buildFbar(){
+  const bar=document.getElementById("fbar");
+  [{id:"all",label:"전체",icon:"ti-apps"},...LC,...AA].forEach(c=>{
+    const b=document.createElement("button");
+    b.className="fc"+(selCat===c.id?" on":"");
+    b.dataset.cat=c.id;
+    b.innerHTML=`<i class="ti ${c.icon}"></i>${c.label}`;
+    b.onclick=()=>{selCat=c.id;openId=null;writeURL();render();};
+    bar.appendChild(b);
+  });
+  const sep=document.createElement("div");sep.className="fsep";bar.appendChild(sep);
+  [{sort:"dist",icon:"ti-map-pin",label:"가까운 순"},
+   {sort:"grade",icon:"ti-award",label:"등급 순"},
+   {sort:"score",icon:"ti-chart-bar",label:"점수 순"}].forEach(s=>{
+    const b=document.createElement("button");
+    b.className="fs"+(selSort===s.sort?" on":"");
+    b.dataset.srt=s.sort;
+    b.innerHTML=`<i class="ti ${s.icon}"></i>${s.label}`;
+    b.onclick=()=>{selSort=s.sort;writeURL();render();};
+    bar.appendChild(b);
+  });
+}
+// Build landing grids
+function buildGrids(){
+  const lc=document.getElementById("lcGrid"),aa=document.getElementById("aaGrid");
+  LC.forEach(c=>{
+    const d=document.createElement("div");d.className="lc-btn";
+    d.innerHTML=`<i class="ti ${c.icon}" style="color:${c.c}"></i><b>${c.label}</b><small>${c.sub}</small>`;
+    d.onclick=()=>{selCat=c.id;showResults();};
+    lc.appendChild(d);
+  });
+  AA.forEach(c=>{
+    const d=document.createElement("div");d.className="lc-btn";
+    d.innerHTML=`<i class="ti ${c.icon}" style="color:${c.c}"></i><b>${c.label}</b><small>${c.sub}</small>`;
+    d.onclick=()=>{selCat=c.id;showResults();};
+    aa.appendChild(d);
+  });
+}
+// Events
+function doSearch(q){if(q.trim()){searchQ=q.trim();selCat="all";openId=null;showResults();}}
+document.getElementById("landBtn").onclick=()=>doSearch(document.getElementById("landInput").value);
+document.getElementById("landInput").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch(e.target.value);});
+document.getElementById("topBtn").onclick=()=>doSearch(document.getElementById("topInput").value);
+document.getElementById("topInput").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch(e.target.value);});
+document.getElementById("backBtn").onclick=goHome;
+document.getElementById("gpsBtn").onclick=()=>doGPS(true);
+document.getElementById("shareBtn").onclick=()=>{
+  const url=location.href;
+  (navigator.clipboard?navigator.clipboard.writeText(url):Promise.resolve().then(()=>{
+    const t=document.createElement("textarea");t.value=url;document.body.appendChild(t);t.select();document.execCommand("copy");document.body.removeChild(t);
+  })).then(()=>{const el=document.getElementById("toast");el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2400);});
+};
+buildGrids();buildFbar();
+if(readURL())showResults();
+
+</script>
+</body>
+</html>
